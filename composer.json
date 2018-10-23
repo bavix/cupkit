@@ -1,0 +1,21 @@
+{
+  "name": "bavix/cupkit",
+  "description": "A tool for fast loading cdn corundum.",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Babichev Maxim",
+      "email": "info@babichev.net"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Bavix\\CupKit\\": "src/"
+    }
+  },
+  "require": {
+    "php": ">=7.1",
+    "league/flysystem": "^1.0",
+    "guzzlehttp/guzzle": "^6.3"
+  }
+}
