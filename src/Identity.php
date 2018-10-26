@@ -58,9 +58,18 @@ class Identity
     /**
      * @return bool
      */
-    protected function load(): bool
+    protected function loadTokens(): bool
     {
         return false;
+    }
+
+    /**
+     * @param array $response
+     */
+    protected function updateTokens(array $response): void
+    {
+        $this->accessToken = $response['access_token'];
+        $this->refreshToken = $response['refresh_token'];
     }
 
     /**
@@ -183,7 +192,7 @@ class Identity
      */
     protected function initialize(): void
     {
-        if (!$this->load()) {
+        if (!$this->loadTokens()) {
             $this->passport([
                 'grant_type' => 'password',
                 'username' => $this->username,
@@ -235,9 +244,9 @@ class Identity
             'headers' => ['Accept' => 'application/json',],
         ]);
 
-        $response = \json_decode((string)$request->getBody(), true);
-        $this->accessToken = $response['access_token'];
-        $this->refreshToken = $response['refresh_token'];
+        $this->updateTokens(
+            \json_decode($request->getBody(), true)
+        );
     }
 
 }
