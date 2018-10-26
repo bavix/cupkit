@@ -5,6 +5,4 @@
  */
 $client = require __DIR__ . '/client.php';
 
-foreach ($client->getBuckets() as $bucket) {
-    var_dump($bucket);
-}
+var_dump($client->getBucket('test'));

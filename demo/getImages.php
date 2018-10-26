@@ -5,6 +5,6 @@
  */
 $client = require __DIR__ . '/client.php';
 
-foreach ($client->getBuckets() as $bucket) {
+foreach ($client->getImages('test') as $bucket) {
     var_dump($bucket);
 }

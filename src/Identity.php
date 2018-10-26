@@ -67,6 +67,7 @@ class Identity
      * @param string $url
      * @param array $query
      * @return ResponseInterface
+     * @throws
      */
     public function get(string $url, array $query = []): ResponseInterface
     {
@@ -76,7 +77,7 @@ class Identity
                 'headers' => $this->getHeaders(),
             ]);
         } catch (\Throwable $throwable) {
-            return $this->refresh()->get($url, $query);
+            return $this->refresh($throwable)->get($url, $query);
         }
     }
 
@@ -85,6 +86,7 @@ class Identity
      * @param array $body
      * @param array $query
      * @return ResponseInterface
+     * @throws
      */
     public function post(string $url, array $body = [], array $query = []): ResponseInterface
     {
@@ -95,7 +97,7 @@ class Identity
                 'headers' => $this->getHeaders(),
             ]);
         } catch (\Throwable $throwable) {
-            return $this->refresh()->post($url, $body);
+            return $this->refresh($throwable)->post($url, $body);
         }
     }
 
@@ -103,6 +105,7 @@ class Identity
      * @param string $url
      * @param array $query
      * @return ResponseInterface
+     * @throws
      */
     public function delete(string $url): ResponseInterface
     {
@@ -111,7 +114,7 @@ class Identity
                 'headers' => $this->getHeaders(),
             ]);
         } catch (\Throwable $throwable) {
-            return $this->refresh()->delete($url);
+            return $this->refresh($throwable)->delete($url);
         }
     }
 
@@ -145,7 +148,7 @@ class Identity
     {
         if (!$this->guzzle) {
             $this->guzzle = new \GuzzleHttp\Client([
-                'base_url' => $this->credentials->getBaseUrl()
+                'base_uri' => $this->credentials->getBaseUrl()
             ]);
         }
 
@@ -158,21 +161,32 @@ class Identity
     protected function initialize(): void
     {
         if (!$this->load()) {
-            $this->passport([
-                'grunt_type' => 'password',
-                'username' => $this->username,
-                'password' => $this->password,
-            ]);
+            try {
+                $this->passport([
+                    'grant_type' => 'password',
+                    'username' => $this->username,
+                    'password' => $this->password,
+                ]);
+            } catch (\Throwable $throwable) {
+                var_dump($throwable->getMessage(), $throwable->getTraceAsString());die;
+            }
         }
     }
 
     /**
+     * @param \Throwable $throwable
+     *
      * @return static
+     * @throws
      */
-    protected function refresh(): self
+    protected function refresh(\Throwable $throwable): self
     {
         if (!$this->refreshToken || $this->attempts > 3) {
-            throw new \RuntimeException();
+            throw new \RuntimeException('The number of attempts is over');
+        }
+
+        if ($throwable->getCode() !== 401) {
+            throw $throwable;
         }
 
         try {
@@ -202,9 +216,9 @@ class Identity
             'headers' => ['Accept' => 'application/json',],
         ]);
 
-        $object = \json_decode((string)$request->getBody(), true);
-        $this->accessToken = $object['access_token'];
-        $this->refreshToken = $object['refresh_token'];
+        $response = \json_decode((string)$request->getBody(), true);
+        $this->accessToken = $response['access_token'];
+        $this->refreshToken = $response['refresh_token'];
     }
 
 }
