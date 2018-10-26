@@ -119,6 +119,29 @@ class Identity
     }
 
     /**
+     * @param string $url
+     * @param resource $resource
+     * @return ResponseInterface
+     * @throws
+     */
+    public function upload(string $url, $resource): ResponseInterface
+    {
+        try {
+            return $this->getGuzzle()->post($url, [
+                'headers' => $this->getHeaders(),
+                'multipart' => [
+                    [
+                        'name' => 'file',
+                        'contents' => $resource,
+                    ],
+                ],
+            ]);
+        } catch (\Throwable $throwable) {
+            return $this->refresh($throwable)->upload($url, $resource);
+        }
+    }
+
+    /**
      * @return array
      */
     protected function getHeaders(): array

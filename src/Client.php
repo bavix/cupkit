@@ -116,6 +116,26 @@ class Client
     }
 
     /**
+     * @param string $bucket
+     * @param resource|string $path
+     * @return array
+     */
+    public function createImage(string $bucket, $path): array
+    {
+        return $this->upload(\sprintf('/api/bucket/%s/image', $bucket), $path);
+    }
+
+    /**
+     * @param string $bucket
+     * @param $uuid
+     * @return bool
+     */
+    public function dropImage(string $bucket, $uuid): bool
+    {
+        return $this->delete(\sprintf('/api/bucket/%s/image/%s', $bucket, $uuid));
+    }
+
+    /**
      * @param string $path
      * @param array $query
      * @param int $page
@@ -177,6 +197,22 @@ class Client
         } catch (\Throwable $throwable) {
             return false;
         }
+    }
+
+    /**
+     * @param string $path
+     * @param $resource
+     * @return array
+     */
+    protected function upload(string $path, $resource): array
+    {
+        if (!\is_resource($resource)) {
+            $resource = \fopen($resource, 'rb');
+        }
+
+        $response = $this->identity->upload($path, $resource);
+        $received = new Received($response);
+        return $received->asArray();
     }
 
 }
