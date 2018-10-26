@@ -91,7 +91,7 @@ class Identity
     public function post(string $url, array $body = [], array $query = []): ResponseInterface
     {
         try {
-            return $this->getGuzzle()->get($url, [
+            return $this->getGuzzle()->post($url, [
                 'form_params' => $body,
                 'query' => $query,
                 'headers' => $this->getHeaders(),
@@ -161,15 +161,11 @@ class Identity
     protected function initialize(): void
     {
         if (!$this->load()) {
-            try {
-                $this->passport([
-                    'grant_type' => 'password',
-                    'username' => $this->username,
-                    'password' => $this->password,
-                ]);
-            } catch (\Throwable $throwable) {
-                var_dump($throwable->getMessage(), $throwable->getTraceAsString());die;
-            }
+            $this->passport([
+                'grant_type' => 'password',
+                'username' => $this->username,
+                'password' => $this->password,
+            ]);
         }
     }
 
