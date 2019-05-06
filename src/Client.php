@@ -206,7 +206,7 @@ class Client
      */
     protected function upload(string $path, $resource): array
     {
-        if (!\is_resource($resource) && \file_exists($response)) {
+        if (!\is_resource($resource) && \file_exists($resource)) {
             $resource = \fopen($resource, 'rb');
         }
 
