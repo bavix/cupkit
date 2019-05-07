@@ -130,14 +130,21 @@ class Identity
     /**
      * @param string $url
      * @param resource $resource
+     * @param string|null $uuid
      * @return ResponseInterface
      * @throws
      */
-    public function upload(string $url, $resource): ResponseInterface
+    public function upload(string $url, $resource, ?string $uuid = null): ResponseInterface
     {
+        $headers = $this->getHeaders();
+        
+        if ($uuid) {
+            $headers['Idempotency-Key'] = $uuid;
+        }
+
         try {
             return $this->getGuzzle()->post($url, [
-                'headers' => $this->getHeaders(),
+                'headers' => $headers,
                 'multipart' => [
                     [
                         'name' => 'file',
@@ -146,7 +153,7 @@ class Identity
                 ],
             ]);
         } catch (\Throwable $throwable) {
-            return $this->refresh($throwable)->upload($url, $resource);
+            return $this->refresh($throwable)->upload($url, $resource, $uuid);
         }
     }
 
