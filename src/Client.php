@@ -118,11 +118,12 @@ class Client
     /**
      * @param string $bucket
      * @param resource|string $path
+     * @param string $uuid
      * @return array
      */
-    public function createImage(string $bucket, $path): array
+    public function createImage(string $bucket, $path, ?string $uuid = null): array
     {
-        return $this->upload(\sprintf('/api/bucket/%s/image', $bucket), $path);
+        return $this->upload(\sprintf('/api/bucket/%s/image', $bucket), $path, $uuid);
     }
 
     /**
@@ -202,15 +203,16 @@ class Client
     /**
      * @param string $path
      * @param $resource
+     * @param string|null $uuid
      * @return array
      */
-    protected function upload(string $path, $resource): array
+    protected function upload(string $path, $resource, ?string $uuid = null): array
     {
         if (!\is_resource($resource)) {
             $resource = \fopen($resource, 'rb');
         }
 
-        $response = $this->identity->upload($path, $resource);
+        $response = $this->identity->upload($path, $resource, $uuid);
         $received = new Received($response);
         return $received->asArray();
     }
