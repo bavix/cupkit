@@ -200,12 +200,20 @@ class Identity
     protected function initialize(): void
     {
         if (!$this->loadTokens()) {
-            $this->passport([
-                'grant_type' => 'password',
-                'username' => $this->username,
-                'password' => $this->password,
-            ]);
+            $this->login();
         }
+    }
+
+    /**
+     * @return void
+     */
+    protected function login(): void 
+    {
+        $this->passport([
+            'grant_type' => 'password',
+            'username' => $this->username,
+            'password' => $this->password,
+        ]);
     }
 
     /**
