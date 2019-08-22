@@ -24,7 +24,14 @@ class Received
     public function __construct(ResponseInterface $response)
     {
         $this->response = $response;
-        $this->data = \json_decode($response->getBody(), true);
+    }
+
+    /**
+     * @return ResponseInterface
+     */
+    public function getResponse(): ResponseInterface
+    {
+        return $this->response;
     }
 
     /**
@@ -32,6 +39,9 @@ class Received
      */
     public function asArray(): array
     {
+        if (!$this->data) {
+            $this->data = \json_decode($this->response->getBody(), true);
+        }
         return $this->data;
     }
 
